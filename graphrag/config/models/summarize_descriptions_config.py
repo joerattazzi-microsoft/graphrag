@@ -24,6 +24,10 @@ class SummarizeDescriptionsConfig(LLMConfig):
     strategy: dict | None = Field(
         description="The override strategy to use.", default=None
     )
+    batch_size: int = Field(
+        description="The batch size to use when calling the LLM for entity summarization.",
+        default=defs.SUMMARIZE_DESCRIPTIONS_BATCH_SIZE,
+    )
 
     def resolved_strategy(self, root_dir: str) -> dict:
         """Get the resolved description summarization strategy."""

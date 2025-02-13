@@ -285,7 +285,6 @@ async def _update_entities(
         config,
         cache,
         callbacks,
-        progress_logger,
     )
 
     progress_logger.info("Updating Final Entities - Finished _run_entity_summarization")
