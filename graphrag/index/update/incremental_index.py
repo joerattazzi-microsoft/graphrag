@@ -106,7 +106,7 @@ async def update_dataframe_outputs(
     # Update entities and merge them
     progress_logger.info("Updating Final Entities")
     merged_entities_df, entity_id_mapping = await _update_entities(
-        dataframe_dict, storage, update_storage, config, cache, callbacks
+        dataframe_dict, storage, update_storage, config, cache, callbacks, progress_logger=progress_logger
     )
 
     # Update relationships with the entities id mapping
@@ -264,15 +264,20 @@ async def _update_relationships(dataframe_dict, storage, update_storage):
 
 
 async def _update_entities(
-    dataframe_dict, storage, update_storage, config, cache, callbacks
+    dataframe_dict, storage, update_storage, config, cache, callbacks, progress_logger
 ):
     """Update Final Entities output."""
     old_entities = await load_table_from_storage("create_final_entities", storage)
     delta_entities = dataframe_dict["create_final_entities"]
 
+    progress_logger.info("Updating Final Entities - Finished load_table_from_storage")
+
     merged_entities_df, entity_id_mapping = _group_and_resolve_entities(
         old_entities, delta_entities
     )
+
+    progress_logger.info("Updating Final Entities - Finished _group_and_resolve_entities")
+
 
     # Re-run description summarization
     merged_entities_df = await _run_entity_summarization(
@@ -280,12 +285,18 @@ async def _update_entities(
         config,
         cache,
         callbacks,
+        progress_logger,
     )
+
+    progress_logger.info("Updating Final Entities - Finished _run_entity_summarization")
+
 
     # Save the updated entities back to storage
     await write_table_to_storage(
         merged_entities_df, "create_final_entities", update_storage
     )
+
+    progress_logger.info("Updating Final Entities - Finished write_table_to_storage")
 
     return merged_entities_df, entity_id_mapping
 
